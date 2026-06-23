@@ -42,19 +42,23 @@ next`, the loop becomes:
 
 ```
 For each milestone in the run:
-  1. Read the milestone's acceptance criteria, its DO-NOT-BUILD list, and its autonomy
+  1. Cumulative debt gate (loop-level — the Verifier can't do this). Total the open
+     forge-debt entries logged in HANDOFF.md across the run so far. If it crosses
+     [N] open or [M] medium-severity entries, STOP for human triage before building —
+     even though the last milestone was a PASS. (See §3 STOP RULES, VERIFICATION.md §4.)
+  2. Read the milestone's acceptance criteria, its DO-NOT-BUILD list, and its autonomy
      tag (§2a: auto-verifiable or needs-human-check)
-  2. Build only that milestone
-  3. Self-verify against every acceptance criterion (executor's own check)
-  4. Run the independent Verifier (/forge-verify) in fresh context
-  5. Branch on the verdict:
+  3. Build only that milestone
+  4. Self-verify against every acceptance criterion (executor's own check)
+  5. Run the independent Verifier (/forge-verify) in fresh context
+  6. Branch on the verdict:
        PASS / PASS-WITH-NOTES → commit, update HANDOFF.md (log any notes), then branch
                                 on the milestone's autonomy tag:
                                   auto-verifiable   → AUTO-PROCEED to next milestone
                                   needs-human-check → STOP for human review, even on PASS
                                 (PASS-WITH-NOTES with a severity-high note → treat as FAIL)
        FAIL                   → STOP. Write the failure + diagnosis to HANDOFF.md. Wait.
-  6. If a tripwire (§4) is hit at any point → STOP immediately, write HANDOFF.md, wait.
+  7. If a tripwire (§4) is hit at any point → STOP immediately, write HANDOFF.md, wait.
 End loop → STOP, write a run summary to HANDOFF.md, wait for human review of the batch.
 ```
 
@@ -122,6 +126,10 @@ MILESTONES.md:
 - A milestone is COMPLETE when every acceptance criterion is PASS and the Verifier
   has run. In Autonomous Mode you may proceed to the next milestone ONLY on a
   Verifier PASS or PASS-WITH-NOTES. On FAIL, STOP and write HANDOFF.md.
+- Cumulative debt budget (loop-level — the Verifier can't see the pile): before
+  building each new milestone, total the open forge-debt entries in HANDOFF.md across
+  the run. If it crosses [N] open entries or [M] medium-severity entries, STOP for
+  human triage — even on a Verifier PASS. (VERIFICATION.md §4.)
 - DO-NOT-BUILD list: each milestone names what is explicitly out of scope. Building
   it is a failure even if the code is good. New ideas go to PARKED.md, unbuilt.
 - Attempt budget: if the same problem fails 3 distinct fix attempts, STOP, write the

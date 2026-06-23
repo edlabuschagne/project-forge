@@ -4,6 +4,17 @@ All notable changes to the Forge methodology are recorded here. The canonical
 version lives in `PROJECT_FORGE.md` (the `**Forge vX.Y**` line); this file tracks
 its history. Format loosely follows Keep a Changelog; dates are ISO 8601.
 
+## 1.6 — 2026-06-23
+
+### Fixed
+- **Cumulative debt budget is now actually enforced** (`FORGE_AUTONOMOUS_MODE.md` §2, §3).
+  VERIFICATION.md §4 defined a loop-level cumulative debt budget and pointed at
+  FORGE_AUTONOMOUS_MODE.md for enforcement, but neither the run loop (§2) nor the STOP
+  RULES (§3) implemented it — a load-bearing rule that did nothing. Added a cumulative
+  debt gate as the first step of the run loop (fires before every milestone, including on
+  auto-proceed) and a matching STOP RULES line. The Verifier sees one diff and structurally
+  cannot judge accumulated debt; this check lives at the orchestration level, by design.
+
 ## 1.5 — 2026-06-23
 
 ### Added

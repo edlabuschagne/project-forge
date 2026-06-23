@@ -4,7 +4,7 @@
 > is and how to operate as your planning partner. Every new chat or session then
 > becomes a structured Forge planning session.
 
-**Forge v1.5**
+**Forge v1.6**
 
 ---
 
