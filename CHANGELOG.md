@@ -4,6 +4,19 @@ All notable changes to the Forge methodology are recorded here. The canonical
 version lives in `PROJECT_FORGE.md` (the `**Forge vX.Y**` line); this file tracks
 its history. Format loosely follows Keep a Changelog; dates are ISO 8601.
 
+## 1.7 — 2026-06-23
+
+### Fixed
+- **Verifier input contract reconciled with the v1.5 memory map**
+  (`VERIFICATION.md` §0, `PROJECT_FORGE.md`). v1.5 made `ARCHITECTURE.md` a node in a
+  linked, splittable web, but the Verifier's input contract still treated architecture as
+  one flat file — so on a decomposed build the Verifier would receive the index, not the
+  territory ("checking against fiction"). Encoded the rule that the map's load-by-traversal
+  economy is **builder-side only**: at the gate the Verifier always receives the full
+  current architecture, assembled deterministically, never a traversed selection. Added a
+  "Why the Verifier never traverses" subsection to VERIFICATION.md §0, matched the embedded
+  short-form template, and added a builder-side-only boundary note to the memory-map section.
+
 ## 1.6 — 2026-06-23
 
 ### Fixed

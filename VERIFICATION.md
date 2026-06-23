@@ -15,8 +15,11 @@
 ## 0. What the Verifier sees (and must NOT see)
 
 The Verifier gets a **fresh context** with only:
-- `PROJECT_SCOPE.md`, `ARCHITECTURE.md` (current built state), the **current milestone's
-  acceptance criteria + DO-NOT-BUILD list** from `MILESTONES.md`, and this file.
+- `PROJECT_SCOPE.md`, the **full current architecture** (`ARCHITECTURE.md` plus every
+  architecture node it links to, assembled deterministically — the Verifier never
+  traverses the memory map to pick nodes; it always receives the complete built-state
+  picture), the **current milestone's acceptance criteria + DO-NOT-BUILD list**
+  from `MILESTONES.md`, and this file.
 - The **actual diff** for the milestone (files changed, tests added) — e.g. `git diff`
   against the milestone's start commit.
 
@@ -33,6 +36,20 @@ Verdict vocabulary — **always with file:line references, never vibes:**
   a note is severity-high (then treat as FAIL).
 - **FAIL** — a criterion unmet, a DO-NOT-BUILD item built, a regression, a tripwire crossed,
   or a gate red.
+
+### Why the Verifier never traverses the memory map
+
+The memory map (`KNOWLEDGE.md`, PROJECT_FORGE.md) exists to keep the **builder's** working
+context lean across many agentic-loop iterations — load the map, traverse to the 1–3 nodes
+a task needs. That economy is **builder-side only.** The Verifier is not the builder: it
+runs once per gate, in fresh context, on a lighter model. Traversal would force a
+navigation judgment ("which architecture nodes does this diff touch?") onto the very entity
+whose value is being dumb, deterministic, and adversarial — and a missed node is a silent
+"checking against fiction" failure (FORGE_AUTONOMOUS_MODE.md §6 territory). So at the gate
+the Verifier always receives the **full** current architecture, assembled deterministically
+— never a selected subtree. If the full set ever overflows a cheap model's context, that is
+a signal the architecture doc is bloated and needs the map-maintenance the methodology
+already prescribes — not a reason to make the Verifier navigate.
 
 ---
 

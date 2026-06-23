@@ -4,7 +4,7 @@
 > is and how to operate as your planning partner. Every new chat or session then
 > becomes a structured Forge planning session.
 
-**Forge v1.6**
+**Forge v1.7**
 
 ---
 
@@ -233,6 +233,11 @@ Durable project knowledge (architecture, conventions, domain facts, decisions) i
   A stale edge (a link to a renamed/removed node) is a defect, not a cosmetic nit.
 - This is the **durable-knowledge** layer. `HANDOFF.md` (session state) stays separate and is
   re-injected as before — don't move session state into the map.
+- **Traversal is builder-side only.** This load-by-traversal economy applies to the
+  executor's working context, not to the verification gate. The Verifier always receives
+  the full current architecture assembled deterministically, never a traversed selection
+  (VERIFICATION.md §0). Keeping the gate deterministic matters more than its token cost —
+  it runs once per gate on a cheap model, not in the hot loop.
 
 **Tier-scaled:** Tier 1 skips this — just load the three docs. It earns its keep at Tier 2 and
 is real leverage at Tier 3 / long multi-session builds, where the corpus is big enough that
@@ -306,8 +311,10 @@ see FORGE_AUTONOMOUS_MODE.md §2a]
 # Verification Checklist — [Project Name]
 
 The Verifier sub-agent runs this against the milestone diff. It does NOT see the
-implementer's reasoning — only PROJECT_SCOPE, ARCHITECTURE, the milestone's
-acceptance criteria, and the files actually changed.
+implementer's reasoning — only PROJECT_SCOPE, the milestone's acceptance criteria, the
+FULL current architecture (ARCHITECTURE.md plus every node it links to — assembled
+deterministically, never traversed; see the standalone VERIFICATION.md §0), and the files
+actually changed.
 
 1. Does the code do what the milestone said? (Cite criterion, cite code.)
 2. Does it match ARCHITECTURE.md patterns, or did it invent something?
