@@ -42,22 +42,25 @@ next`, the loop becomes:
 
 ```
 For each milestone in the run:
-  1. Read the milestone's acceptance criteria + its DO-NOT-BUILD list
+  1. Read the milestone's acceptance criteria, its DO-NOT-BUILD list, and its autonomy
+     tag (§2a: auto-verifiable or needs-human-check)
   2. Build only that milestone
   3. Self-verify against every acceptance criterion (executor's own check)
   4. Run the independent Verifier (/forge-verify) in fresh context
   5. Branch on the verdict:
-       PASS               → commit, update HANDOFF.md, AUTO-PROCEED to next milestone
-       PASS-WITH-NOTES    → commit, log the notes to HANDOFF.md, AUTO-PROCEED
-                            (unless a note is flagged severity-high → treat as FAIL)
-       FAIL               → STOP. Write the failure + diagnosis to HANDOFF.md. Wait.
+       PASS / PASS-WITH-NOTES → commit, update HANDOFF.md (log any notes), then branch
+                                on the milestone's autonomy tag:
+                                  auto-verifiable   → AUTO-PROCEED to next milestone
+                                  needs-human-check → STOP for human review, even on PASS
+                                (PASS-WITH-NOTES with a severity-high note → treat as FAIL)
+       FAIL                   → STOP. Write the failure + diagnosis to HANDOFF.md. Wait.
   6. If a tripwire (§4) is hit at any point → STOP immediately, write HANDOFF.md, wait.
 End loop → STOP, write a run summary to HANDOFF.md, wait for human review of the batch.
 ```
 
 The human gate hasn't disappeared — it's become **conditional**. It fires on Verifier
-failure, on a tripwire, and at the end of the run. The rest of the time the executor
-proceeds on the Verifier's say-so. You review a *batch* of completed milestones at the
+failure, on a tripwire, on any milestone you tagged `needs-human-check` (§2a), and at the
+end of the run. The rest of the time the executor proceeds on the Verifier's say-so. You review a *batch* of completed milestones at the
 end, by using the deployed result and reading the accumulated HANDOFF.md, not by
 reading code milestone-by-milestone.
 
@@ -65,6 +68,43 @@ reading code milestone-by-milestone.
 through milestone N then stop," or "run until a Verifier FAIL or you've completed 3
 milestones, whichever first." Open-ended "build everything" runs are where autonomous
 agents burn budget and drift. Bound the run.
+
+---
+
+## 2a. Decide what's safe to run unattended (planning triage)
+
+Not every milestone deserves the same trust. The whole point of Autonomous Mode is to run
+unattended where a machine can honestly sign off — and to pull you in where it can't. That
+decision is made **in planning, not mid-run**, and recorded on each milestone so the executor
+has an explicit instruction instead of a guess.
+
+Tag every milestone one of two ways:
+
+- **`auto-verifiable`** — the acceptance criteria can be *proven by machine*: a test exercises
+  the rule, and the outcome is observable and captured automatically (see VERIFICATION.md
+  Check 8 for what "observable outcome" means beyond the browser). On a Verifier PASS the run
+  auto-proceeds. This is the default and should be most milestones — if you can't make a
+  milestone auto-verifiable, that's usually a sign its criteria aren't concrete enough yet.
+- **`needs-human-check`** — something real can't be proven by the Verifier alone, so the run
+  **stops for your review even on a PASS.** Reach for this when a milestone involves:
+    - subjective quality a screenshot can't settle (does the UX actually feel right, is the
+      copy on-brand);
+    - a real external side effect (a live payment, an email actually sent, a third-party
+      integration hitting the real service);
+    - genuine design judgment, or a first-of-its-kind pattern the rest of the build will copy;
+    - anything you simply want to see with your own eyes before more is built on top of it.
+
+Two distinctions worth holding:
+- This is **not** a tripwire. Tripwires (§4) stop on *irreversible* actions regardless of
+  verdict; `needs-human-check` stops on *unverifiable-by-machine* milestones regardless of
+  verdict. One guards against damage, the other against bad judgment slipping through. A
+  milestone can be both.
+- Keep the `needs-human-check` set **small and honest.** Every one is a place the run pauses
+  for you — the very cost you're using Autonomous Mode to avoid. Tag the milestones that
+  genuinely need your eyes, make the rest concretely auto-verifiable, and let the loop run.
+
+This tag lives next to the milestone's criteria in MILESTONES.md (PROJECT_FORGE.md template),
+so it loads with the milestone.
 
 ---
 

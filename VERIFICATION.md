@@ -7,7 +7,8 @@
 > declaring a milestone done. The **independent Verifier** runs the *same* checklist
 > again at the gate — in a fresh context, having never seen the executor's reasoning.
 > Same checklist, independent eyes. In Autonomous Mode the Verifier IS the gate:
-> PASS / PASS-WITH-NOTES auto-proceeds; FAIL stops the run (see FORGE_AUTONOMOUS_MODE.md).
+> PASS / PASS-WITH-NOTES auto-proceeds (unless the milestone is tagged needs-human-check,
+> §2a there); FAIL stops the run (see FORGE_AUTONOMOUS_MODE.md).
 
 ---
 
@@ -80,7 +81,7 @@ security form, etc.]
 - Build clean (0 errors)? Lint 0 errors (warnings acceptable)?
 - Re-run the **full prior test suite** after any change touching shared logic, the data
   layer, or security — all prior suites still green, plus the new milestone's.
-- Browser e2e flow still green.
+- End-to-end flow still green (browser e2e for web; the platform's equivalent otherwise).
 
 ### Check 5 — The "never shortcut" floor (non-negotiable)
 These are **FAIL if cut, regardless of leanness (§5):**
@@ -102,16 +103,22 @@ Grep the **whole diff** for `forge-debt:` markers and assemble them into this mi
 ledger (§4). A **marked** shortcut is a decision log entry (record it). An **unmarked**
 shortcut is hidden debt → **PASS-WITH-NOTES at best, FAIL if it touches the §1 Check 5 floor.**
 
-### Check 8 — Visual verification (the eyes) — any milestone with a UI surface
-Tests prove the behaviour someone thought to assert; they do not prove the screen looks
-right or the flow makes sense. Check 4 runs the e2e suite — this check **looks at the
-result.** For each UI acceptance criterion, open the screenshot captured for its state (§3)
-and confirm the screen shows what the criterion says the user should see — not an error,
-empty state, broken layout, placeholder, or unstyled flash. Confirm the state is reachable
-by the path a real user takes, not only by direct navigation. **A criterion whose screenshot
-contradicts it is a FAIL, not a note** — code "passing" while the screen is wrong is the
-"looks done but isn't" defect that hides longest in an unattended run. Requires a
-vision-capable Verifier (§0).
+### Check 8 — Observable-outcome verification (the eyes) — every milestone
+Tests prove the behaviour someone thought to assert; they do not prove the *result* is right —
+that the screen looks correct, the output reads correctly, the file came out as intended.
+Check 4 runs the suite — this check **looks at the result.** For each acceptance criterion,
+open the outcome captured for its state (§3), in whatever form fits the platform:
+- **A UI (web or desktop)** → the screenshot. Confirm it shows what the criterion says the
+  user should see — not an error, empty state, broken layout, placeholder, or unstyled flash —
+  and that the state is reachable by the path a real user takes, not only by direct
+  navigation. (Requires a vision-capable Verifier, §0.)
+- **A CLI / script** → the captured stdout/stderr and exit code. Confirm both match what the
+  criterion specifies.
+- **A batch job / generated file** → the produced artifact. Confirm its contents are what the
+  criterion describes.
+**A criterion whose captured outcome contradicts it is a FAIL, not a note** — code "passing"
+while the result is wrong is the "looks done but isn't" defect that hides longest in an
+unattended run.
 
 ---
 
@@ -129,7 +136,7 @@ Verdict: PASS | PASS-WITH-NOTES | FAIL
 ### Check 5 — Never-shortcut floor — PASS/FAIL — <refs>
 ### Check 6 — Tripwire audit — none crossed | CROSSED: <which> (approved in HANDOFF? y/n)
 ### Check 7 — Debt ledger — <N forge-debt markers collected, listed below>
-### Check 8 — Visual verification — PASS/FAIL — <criterion → shot path → what the frame shows>
+### Check 8 — Observable-outcome verification — PASS/FAIL — <criterion → outcome path → what it shows>
 
 ### Debt ledger (this milestone)
 - forge-debt: <text> — <file:line> — severity low/med/high
@@ -147,10 +154,13 @@ No prose blessing without line references. **If you cannot cite it, it did not p
 - **Build:** `[build command]` → must exit 0.
 - **Lint:** `[lint command]` → 0 errors (warnings acceptable).
 - **Tests:** `[test command]` → all green.
-- **Browser e2e:** `[e2e command]` → green.
-- **Screenshots:** the e2e run captures a shot at each UI acceptance-criterion state to
-  `verification-shots/M[X]/<criterion>.png`. Deterministic capture only — no agent driving
-  the browser, so the model spends tokens on *looking* (Check 8), never on plumbing.
+- **End-to-end / integration:** `[e2e command]` → green. (Browser e2e for web; the platform's
+  equivalent otherwise — a scripted UI driver, a CLI invocation harness, an integration test.)
+- **Outcome capture:** the e2e run captures the observable outcome at each acceptance-criterion
+  state to `verification-shots/M[X]/<criterion>.<ext>` — a screenshot (`.png`) for a UI,
+  captured stdout + exit code (`.txt`) for a CLI, the generated artifact for a batch job.
+  Deterministic capture only — no agent driving the run, so the model spends tokens on
+  *looking* (Check 8), never on plumbing.
 - **Security checks:** never "verified" via a privileged/admin path that bypasses the
   access-control layer — that bypasses the very thing you're testing. Prove behaviourally,
   the way a real unprivileged user would hit it.
