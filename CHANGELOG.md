@@ -4,6 +4,25 @@ All notable changes to the Forge methodology are recorded here. The canonical
 version lives in `PROJECT_FORGE.md` (the `**Forge vX.Y**` line); this file tracks
 its history. Format loosely follows Keep a Changelog; dates are ISO 8601.
 
+## 1.8 — 2026-06-24
+
+### Added
+- **Claude Code enforcement appendix** (`FORGE_AUTONOMOUS_MODE.md`): a harness-specific
+  implementation of the tripwire contract — `permissions.deny` as the primary control (blocks
+  even under `bypassPermissions`), `ask` as a project-localised pattern, a `PreToolUse` hook as
+  optional secondary (fails open on error/exit-1, jq-free, structured-match), and a mandatory
+  startup canary. Verified behaviourally on Claude Code 2.1.187 (Win + Git Bash).
+- **Startup canary as a mandatory run-start guard-presence check** (§2) + matching STOP RULES
+  line (§3): config binds at session start, so a mis-bound session leaves guardrails
+  present-but-inert ("looks armed but isn't"); the agent can't introspect its own config, so
+  loading is confirmed behaviourally.
+
+### Changed
+- §4 gains the **enforcement contract** (enforce where the harness can; confirm behaviourally),
+  keeping the prose tripwire list as the portable spec and pointing to the appendix.
+- `VERIFICATION.md` Check 4 names the deny/ask baseline as protected security state; Check 6
+  confirms the autonomous run's guard-presence check was performed and recorded.
+
 ## 1.7 — 2026-06-23
 
 ### Fixed

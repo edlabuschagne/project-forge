@@ -95,6 +95,9 @@ security form, etc.]
 ### Check 4 — Regression (did it break something that worked?)
 - Did a previously-passing criterion from M1–M(n-1) break? Spot-check the adjacent surface.
 - Were existing security rules, access controls, or data constraints weakened or dropped?
+  The **guardrail/enforcement baseline** is protected security state too: silently removing or
+  loosening a tripwire control — in Claude Code, a `permissions.deny`/`ask` rule or a tripwire
+  hook (FORGE_AUTONOMOUS_MODE.md appendix) — is weakening security and counts as a regression.
 - Build clean (0 errors)? Lint 0 errors (warnings acceptable)?
 - Re-run the **full prior test suite** after any change touching shared logic, the data
   layer, or security — all prior suites still green, plus the new milestone's.
@@ -114,6 +117,10 @@ Confirm the change did **not** silently cross a CLAUDE.md TRIPWIRE without an ex
 approval recorded in HANDOFF.md: changes to auth, access control, or secrets; destructive or
 irreversible data operations; git history rewrites; spending money / provisioning paid
 resources; anything touching production. Crossing one unapproved = **FAIL + STOP**.
+**Autonomous Mode:** also confirm the run's session-start **guard-presence check** was performed
+and its result recorded — a known-denied operation proven blocked before any building. An
+unattended run whose guards were never confirmed loaded is a **FAIL** regardless of verdict.
+(Claude Code form: the startup canary, FORGE_AUTONOMOUS_MODE.md appendix.)
 
 ### Check 7 — Debt ledger (collect every `forge-debt:` marker)
 Grep the **whole diff** for `forge-debt:` markers and assemble them into this milestone's

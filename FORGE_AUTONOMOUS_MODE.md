@@ -41,6 +41,11 @@ This is the core change. Instead of `build → stop → human reviews → human 
 next`, the loop becomes:
 
 ```
+Session start (once, before the loop — guards bind per session, not per milestone):
+  0. Guard-presence check. Prove a known-denied operation is actually blocked before
+     trusting any tripwire. If it is NOT blocked, the session is UNGUARDED → STOP; do not
+     build. (Harness-specific mechanism — e.g. the startup canary — lives in the Appendix.)
+
 For each milestone in the run:
   1. Cumulative debt gate (loop-level — the Verifier can't do this). Total the open
      forge-debt entries logged in HANDOFF.md across the run so far. If it crosses
@@ -123,6 +128,9 @@ MILESTONES.md:
 
 ```markdown
 ## STOP RULES — these override all other instructions
+- Guard-presence check (session start, Autonomous Mode): before building anything, prove a
+  known-denied operation is actually blocked. If it is not blocked, the session is UNGUARDED —
+  STOP and do not build. (Mechanism: see the FORGE_AUTONOMOUS_MODE.md appendix.)
 - A milestone is COMPLETE when every acceptance criterion is PASS and the Verifier
   has run. In Autonomous Mode you may proceed to the next milestone ONLY on a
   Verifier PASS or PASS-WITH-NOTES. On FAIL, STOP and write HANDOFF.md.
@@ -163,6 +171,16 @@ in CLAUDE.md verbatim and treat it as the hard floor of Autonomous Mode:
 When you hit a tripwire: STOP, describe exactly what you intend to do and why, write
 it to HANDOFF.md, and wait. Do not proceed on assumed approval.
 ```
+
+**Enforcement contract.** The list above is the portable spec — the *what*. Where a harness
+can deterministically enforce a tripwire (block the op, not merely instruct against it), it
+**must**, and that enforcement is confirmed **behaviourally** — proven blocked by a probe,
+never assumed from prose. A tripwire that exists only as text the model is asked to honour is
+not enforced; treat it as advisory until a harness control backs it.
+
+**In Claude Code**, these map to the Appendix's `permissions.deny`/`ask` rules plus the
+mandatory startup canary (see the Appendix). Keep that config in the appendix and project
+settings — never inline it into this portable spec.
 
 Tune this list to the project — but err toward *more* tripwires, not fewer. Every
 item you add here is a place where an unattended mistake stays cheap.
@@ -253,3 +271,102 @@ you time; it just moves the cost to a worse moment later.
   Verifier-as-gate trustworthy.
 - **The two gremlins still apply:** over-research (don't re-plan what's already built —
   inventory it and move) and shiny-new-idea (new ideas go to PARKED.md, not the run).
+
+---
+
+## Appendix — Claude Code enforcement (a harness-specific optimisation)
+
+> **Not part of the model-agnostic core.** §4 defines the tripwire *contract* — the
+> irreversible set, plus the rule that where a harness can deterministically enforce a
+> tripwire it must, and enforcement is confirmed *behaviourally*. This appendix is one
+> *implementation* of that contract in Claude Code; another harness implements the same
+> contract its own way. The methodology body must never depend on anything here.
+>
+> Every claim below was verified behaviourally on Claude Code 2.1.187 (Windows + Git Bash).
+> Version-specific behaviour is a strong layer to re-test, never a guarantee.
+
+### Layer 1 — `permissions.deny`: the primary deterministic control
+
+Evaluated **before** the permission-mode check, so a `deny` rule blocks **even in
+`bypassPermissions`** (verified on 2.1.187). The decisive fact for an unattended run: under
+`acceptEdits`, an op in *neither* the allow nor deny list is **not prompted — it is executed**
+(verified: an unlisted `rm` ran silently). For the irreversible set, **silence is the
+default; only an explicit `deny` stops it.**
+
+Tight baseline (`.claude/settings.json`) — the globally-safe denials:
+
+    "permissions": {
+      "deny": [
+        "Bash(git push --force*)",
+        "Bash(git push -f*)",
+        "Bash(git reset --hard*)",
+        "Bash(git branch -D*)",
+        "Read(./.env)", "Read(./.env.*)",
+        "Edit(./.env)", "Edit(./.env.*)",
+        "Bash(mkdir __forge_canary__*)"
+      ]
+    }
+
+Caveats, all real:
+- **Each pattern must pass its own canary** (attempt it, confirm the block) before you trust
+  it — bash matching is positional/prefix, so a reordered or aliased equivalent
+  (`git --force push`, an alias) may slip a deny. Treat bash denials as strong, not airtight.
+- **`Read`/`Edit` deny rules cover Claude's file tools, not an arbitrary subprocess.**
+  `Edit(./.env)` stops the Edit tool; `Bash(echo x > .env)` is a Bash op and slips past it.
+
+**The real fix for secrets is the Security principle, not a deny rule:** secrets live in
+host/env config, `.gitignore`'d, out of the working tree. A `.env` that isn't in the tree
+can't be silently edited — it isn't there. Deny `Read`/`Edit` only for sensitive config that
+genuinely must stay in-tree.
+
+### Layer 1b — `ask`: the project-localised surface
+
+Spend / provisioning / prod / destructive-DB are project- and tool-specific. The methodology
+names the *class*; each project fills its own `ask` lines. Do **not** bake a list into the
+template — it bloats and goes stale. `ask` also survives bypass (same pre-mode evaluation).
+
+Pattern (fill per project — example, not a default):
+
+    "ask": [
+      "Bash(aws *)",
+      "Bash(stripe *)",
+      "Bash(supabase db *)",
+      "Bash(<your deploy cmd> *)"
+    ]
+
+Use `ask` where a human should *see and approve*; `deny` where the op must never run
+unattended at all.
+
+### Layer 2 — `PreToolUse` hook: optional secondary, never the floor
+
+A hook fires under both modes and `exit 2` blocks Bash *and* Write/Edit (verified on 2.1.187).
+It is **secondary** because its failure modes are silent: **`exit 1` and any uncaught error
+pass the call through** (verified). Known open bug reports of `exit 2` failing to block
+Write/Edit did *not* reproduce on 2.1.187 — but that is version-contingent; do not rely on a
+hook to stop a file write across versions.
+
+Use a hook only for logic or an audit trail a static `deny` can't express, and write it
+defensively:
+- **jq-free.** The example hooks parse stdin with jq; where jq is absent (e.g. a stock Git
+  Bash), a hook that crashes on missing jq **fails open on every call** — worse than no hook,
+  because it looks present. Parse raw stdin without jq.
+- **Match structured fields, not raw substring** — a naive substring match false-positives on
+  innocent calls (a read-only check, or writing up the hook's own log). Match the parsed
+  command / file_path.
+- **Wrap everything; `exit 2` explicitly.** Document inline that a crash fails open.
+
+### The startup canary — the rule that makes any of the above real
+
+Config binds at **session start** from the bound folder. A session launched against the wrong
+folder — easy in the desktop app, where the bound folder is a setup field with known switching
+bugs — leaves every rule above **present but inert**: "looks armed but isn't." The agent
+**cannot introspect its own config** (`/permissions` is an interactive dialog unavailable to
+it), so loading can only be confirmed *behaviourally*:
+
+    mkdir __forge_canary__        # MUST be blocked by the deny rule above
+    # blocked   -> guards loaded, proceed
+    # succeeded -> config did NOT load; you are UNGUARDED -> STOP
+
+The canary deliberately uses `mkdir` — a verified-blocking deny pattern — so the check rests on
+verified ground. Harness-agnostic in spirit (*prove the guard fired before trusting it*); only
+the mechanism is Claude Code-specific.
