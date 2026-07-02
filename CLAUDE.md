@@ -27,7 +27,7 @@ If the three ever disagree, `PROJECT_FORGE.md` is the anchor and wins.
 
 The canonical methodology version lives in **`PROJECT_FORGE.md`** (the `**Forge vX.Y**` line
 near the top). `CHANGELOG.md` records the history of changes. The methodology is currently at
-**v1.8**. When citing or bumping the version, treat `PROJECT_FORGE.md` as the single source of
+**v1.9**. When citing or bumping the version, treat `PROJECT_FORGE.md` as the single source of
 truth; update `CHANGELOG.md` in the same change.
 
 ## Standing working rule — permanent, every session

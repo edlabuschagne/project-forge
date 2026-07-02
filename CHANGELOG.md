@@ -4,6 +4,34 @@ All notable changes to the Forge methodology are recorded here. The canonical
 version lives in `PROJECT_FORGE.md` (the `**Forge vX.Y**` line); this file tracks
 its history. Format loosely follows Keep a Changelog; dates are ISO 8601.
 
+## 1.9 — 2026-06-24
+
+### Added
+- **Dev-ops automation section** (`PROJECT_FORGE.md`, after Shipping): a portable contract —
+  deterministic checks belong in automation (cheap, no model); agentic verification stays in
+  the loop, not the pipeline; platform-native automation is switched on before anything is
+  built; the billable/irreversible line stays human-owned (the Shipping tripwire); every
+  model-invoking unattended run is capped and watched; and a misbound automated run is
+  unguarded (the canary rides along). Carries a voicing rule mirroring the Security
+  principle: dev-ops decisions are raised in plain language and proposed with a
+  recommendation — the builder should never have to know to ask.
+- **Milestone 0 automation step** (`PROJECT_FORGE.md`): the deterministic battery wired to
+  run on push + native dependency scanning, switched on once at setup (tier-scaled).
+- **Claude Code + GitHub dev-ops appendix** (`PROJECT_FORGE.md`): a quarantined
+  implementation of the contract — the deterministic/agentic split; `claude -p` as the
+  headless primitive (VS Code terminal, not the desktop GUI); subscription cost control
+  (`--max-turns` + `total_cost_usd`; `--max-budget-usd` flagged API-key-path / trailing-cap /
+  unconfirmed-on-subscription); the `--bare` collision (skips CLAUDE.md + hooks → deny-list
+  and canary inert unless `--settings` re-passed); the jq local-vs-runner distinction;
+  CI guard-presence (canary + `system/init` `plugin_errors`); `dontAsk` for locked-down CI;
+  the opt-in GitHub Action; and a studied-and-rejected list (agentic-Verifier-in-CI,
+  auto-deploy/merge, the four-handler hook zoo). Documented against Claude Code 2.1.x;
+  confirm behaviourally.
+
+### Changed
+- Canonical version bumped to **1.9** in `PROJECT_FORGE.md`; the `CLAUDE.md` version mention
+  updated in the same change.
+
 ## 1.8 — 2026-06-24
 
 ### Added

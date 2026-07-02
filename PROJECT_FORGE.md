@@ -4,7 +4,7 @@
 > is and how to operate as your planning partner. Every new chat or session then
 > becomes a structured Forge planning session.
 
-**Forge v1.8**
+**Forge v1.9**
 
 ---
 
@@ -101,6 +101,10 @@ It delivers, in plain steps:
   the empty skeleton, so the gate has something real to run.
 - **The Forge harness** — the mid-build quick-check hook, the `/forge-verify` command, and the
   HANDOFF snapshot hook, in OS-safe form.
+- **Automation switched on (deterministic only)** — the build/lint/test battery wired to
+  run on every push, plus the platform's native dependency scanning enabled. Plain tooling,
+  no model in the loop (see Dev-ops automation). Turn on what the platform already gives
+  before building anything. Tier-scaled: Tier 1 may skip it; Tier 2+ switches it on here.
 - **A baseline commit** — a known-good point to revert to (the from-scratch twin of the
   Autonomous Mode adoption baseline, FORGE_AUTONOMOUS_MODE.md §6).
 
@@ -459,6 +463,50 @@ Tier 3 plans environments and deployment properly from the start.
 
 ---
 
+## Dev-ops automation — let the machine do the boring, repeatable checks
+
+Building it and shipping it isn't keeping it healthy. Dev-ops is the repeatable
+machinery around the build — running checks, watching dependencies, moving code toward
+release. Forge's rule here is one line: **deterministic checks belong in automation;
+judgment and money stay with you.**
+
+- **Automate the deterministic battery, not the judgment.** The build / lint / test /
+  observable-outcome battery (VERIFICATION.md §3) is mechanical and identical every run —
+  exactly what continuous automation is for. Wire it to run on every push so a break is
+  caught the moment it lands, not three milestones later in cold context. This is plain
+  tooling, no model in the loop, so it's cheap, fast, and draws on no AI budget.
+- **Keep agentic verification in the loop, not the pipeline.** The Verifier already runs
+  at the gate. Re-running an agentic review inside automation duplicates it and spends real
+  budget on every push. Deterministic checks automate; the Verifier stays where it is.
+- **Turn on what your platform already gives you — first.** Most repos and hosts ship
+  dependency scanning, git-triggered deploys, and CI runners already. Forge's job is to
+  switch these on (Milestone 0), not to rebuild them. Verify what you have before adding a
+  line — the leanness rule applies to infrastructure too.
+- **The billable / irreversible line stays human-owned.** Automation preps right up to the
+  edge of anything that spends money, touches production, or can't be undone — and stops.
+  Deploy-to-prod, provisioning, plan upgrades: your call, the same tripwire the Shipping
+  section draws. Auto-merge and auto-deploy automate precisely the step you should own. Don't.
+- **Cap and watch every unattended run that invokes a model.** Bound it — a turn or
+  iteration cap, and a spend you'd be willing to waste — and make it report what it cost. An
+  unbounded automated agent is how a stuck loop quietly empties a budget.
+- **A misbound automated run is unguarded.** The "looks armed but isn't" hazard from the
+  Security floor applies to any headless or scheduled run too: confirm the run loaded its
+  guards before trusting it (the canary rides along), and confirm it behaviourally — never
+  assume from config.
+
+**Voicing — dev-ops is where Forge asks for you.** Most builders don't know when to merge,
+what a pipeline is doing, or which automated step is safe to trust — and shouldn't have to.
+Exactly like the Security principle: the planning partner raises the dev-ops decision in
+plain language and proposes the call with a recommendation and a *why*; you own the goal and
+anything billable or irreversible. The builder should never have to know to ask. Forge asks
+for them.
+
+Tier-scaled: Tier 1 may need nothing beyond version control; Tier 2 turns on the
+deterministic battery plus dependency scanning; Tier 3 plans CI and environments properly
+from the start.
+
+---
+
 ## Operating Tips
 
 - Always plan **here** first, then hand to Claude Code.
@@ -493,3 +541,109 @@ gold-plating — it eats budget and session limits on work a lighter model would
 caveats so this doesn't backfire: don't *under*-power a genuinely hard task (a cheap model that
 flails and has to be redone costs more), and don't switch so often that re-establishing context
 eats the saving. Pick the right tier per task; switch deliberately, not constantly.
+
+---
+
+## Appendix — Dev-ops automation in Claude Code + GitHub (a harness-specific optimisation)
+
+> **Not part of the model-agnostic core.** The Dev-ops automation section defines the
+> portable contract — what to automate, what stays human-owned. This appendix is one
+> *implementation* in Claude Code + GitHub; another harness does the same contract its own
+> way. The methodology body must never depend on anything here.
+>
+> Documented against Claude Code 2.1.x (June 2026). Flags and behaviours shift between
+> versions — confirm behaviourally, trust traces over narration, re-test on your version.
+
+### The split: two kinds of automation, only one needs a model
+- **The deterministic battery (no model — do this first).** Build / lint / test /
+  observable-outcome capture is plain tooling. In GitHub it's an Actions workflow on push;
+  there is no `claude` in it, so it costs nothing against any model budget and carries none
+  of the caveats below. This is the bulk of dev-ops automation for Forge, and the cheapest,
+  most reliable part. Native dependency scanning (Dependabot, `npm audit` / `pip-audit`) is
+  the same shape — switch it on, don't build it.
+- **Agentic layers (a model in the loop — opt-in, never core).** Anything that runs Claude
+  in automation — `claude -p` in a script, the GitHub Action on a PR — spends real budget
+  every run and carries the reliability caveats below. Reach for these only against a
+  specific, named need.
+
+### `claude -p` — the headless primitive (where it runs)
+Headless is the Agent SDK via the CLI: `claude -p "..." --output-format json|text`, one
+prompt in, result out, exits. Reachable from any terminal with `claude` on PATH — including
+VS Code's integrated terminal, which runs the same CLI underneath. NOT reachable from the
+desktop app GUI: the desktop app does not do headless execution. So any Forge headless
+automation lives on the build-side terminal, not the planning-side desktop app.
+
+### Cost control on a subscription (what actually works)
+- `--max-turns N` — caps tool calls/turns before the run gives up. Works on subscription;
+  the dependable ceiling. Pick a number you'd be fine wasting (≈40 for a CI job, ≈5 for a
+  pre-commit check).
+- `--output-format json` returns `total_cost_usd` per invocation — log it so spend drift
+  shows up before the invoice does.
+- `--max-budget-usd N` — a dollar ceiling, with three catches: print-mode only; the cap is
+  *trailing* (spend is tallied per turn and the run aborts once it crosses, so it can
+  overshoot); and it appears to be an **API-key-path control, not available on subscription
+  auth**. Treat as unconfirmed for subscription — verify behaviourally before relying on it.
+  On a pure subscription, the real ceiling is `--max-turns` + watching `/usage`.
+- Subscription headless draws your normal rolling rate-limit window — not a free side pool;
+  `/extra-usage` configures pay-as-you-go overflow at API rates. "Run it on every push" has
+  a real ceiling: bound the frequency, not only the single run.
+
+### `--bare` collides with your guardrails — know this before using it
+`--bare` is the recommended CI mode and skips auto-discovery of hooks, skills, plugins, MCP
+servers, auto-memory, **and CLAUDE.md** — only explicitly-passed flags take effect.
+Consequence for Forge: in `--bare`, your `permissions.deny` baseline AND the startup canary
+(FORGE_AUTONOMOUS_MODE.md appendix) are **inert unless re-passed via `--settings`**. The
+recommended CI mode bypasses the security floor by default. Either don't use `--bare` for a
+guarded run, or pass `--settings` with the deny baseline explicitly and re-prove the canary.
+Confirm behaviourally.
+
+### jq: local vs runner
+Every official JSON-parsing example uses `jq`. A stock Git Bash on Windows has no `jq`, so a
+local headless script that pipes JSON through `jq` fails open on this machine. Two safe local
+patterns: use `--output-format text` and consume plain stdout, or redirect JSON to a file and
+parse it where a parser exists. GitHub runners (ubuntu-latest) ship `jq`, so the constraint
+is **local-only** — don't engineer jq-free parsing into a workflow that runs where jq exists.
+
+### Guard-presence in an automated run (the canary, CI form)
+A headless or scheduled run bound to the wrong directory is unguarded — "looks armed but
+isn't," same hazard as the security floor. Two confirmations:
+- **The canary rides along:** before a guarded headless run trusts its tripwires, prove a
+  known-denied op is blocked (the `mkdir __forge_canary__` probe). Especially necessary under
+  `--bare`.
+- **CI-native check:** the `system/init` event in `--output-format stream-json` reports
+  loaded plugins and a `plugin_errors` field — fail the job if a guard plugin/hook didn't
+  load. A guard-presence check the pipeline enforces itself.
+
+### Permission mode for locked-down CI
+For an unattended run, `--permission-mode dontAsk` denies anything not in your
+`permissions.allow` rules or the read-only command set — a tighter posture than
+`bypassPermissions`, which is reserved for a genuinely sandboxed runner. Pair with scoped
+`--allowedTools` (e.g. `Bash(npm test)`, not bare `Bash`).
+
+### The GitHub Action — available, opt-in, parked for push-to-repo workflows
+`anthropics/claude-code-action@v1` wraps a headless run and handles the GitHub plumbing for
+PR review/response. It's the home for agentic PR review *if you run a PR workflow*. CLAUDE.md
+doubles as its version-controlled CI policy. Cost draws the agentic budget per run; scope
+with `--max-turns` and least-privilege workflow permissions. Not adopted on a push-to-repo
+repo — there's no PR for it to review.
+
+### Studied and rejected (so they don't creep back)
+- **Agentic Verifier in CI** — the Verifier already runs at the gate in-loop. Re-running it
+  in the pipeline duplicates work and spends budget every push. Deterministic battery in CI;
+  Verifier in the loop.
+- **Full auto-deploy / auto-merge** — automates the billable/irreversible line the Shipping
+  tripwire reserves for the human. CI preps to the edge; the human pushes the button.
+  (Git-triggered host deploys like Cloudflare Pages are the host's feature and fine — but the
+  *decision* to wire prod to a branch is yours, made once, knowingly.)
+- **The four-handler hook zoo (prompt/agent/http handlers) for "semantic dev-ops gates"** —
+  where a lean thread grows a CI framework. The report-only PostToolUse check Forge already
+  runs is enough mid-build. Adopt a richer handler only against a named pain, never
+  speculatively.
+
+### Worked example — one builder's setup (illustrative, not normative)
+Subscription-capped, no API key by default → `--max-budget-usd` not in play; ceiling is
+`--max-turns` + `/usage`. Builds in VS Code's integrated terminal (headless reachable) while
+planning in the desktop app (not). jq-less Git Bash on Windows → local headless uses text
+output or redirect-to-file. Push-to-repo, no PR workflow → GitHub Action PR review parked,
+not adopted. Net adopted surface: the deterministic battery in CI + native dependency
+scanning; everything agentic stays opt-in and unbuilt until a named need appears.
