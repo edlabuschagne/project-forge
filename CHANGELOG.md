@@ -4,6 +4,29 @@ All notable changes to the Forge methodology are recorded here. The canonical
 version lives in `PROJECT_FORGE.md` (the `**Forge vX.Y**` line); this file tracks
 its history. Format loosely follows Keep a Changelog; dates are ISO 8601.
 
+## 1.11 — 2026-07-02
+
+### Added
+- **`harness/` — reference implementation of the Forge harness (Claude Code form).**
+  Milestone 0 no longer re-derives the harness from prose: `harness/claude-code/` ships the
+  `/forge-verify` gate command (battery → outcome capture → fresh-context Verifier with the
+  bounded-adversarial prompt → Gate Report), the report-only `quick-check.sh` mid-build hook
+  (jq-free, stdin-drained, exit-2 feedback), the `handoff-snapshot.sh` writer, and a
+  `settings.json` with the deny baseline + canary target + hook wiring. Copy-in beats
+  re-generation; quarantined as harness-specific, same as the two existing appendices.
+- **Behavioural verification of the harness wiring** (Claude Code 2.1.193, Win + Git Bash):
+  PostToolUse exit-2 feedback reaches the model without undoing the tool call; the Stop hook
+  writes the snapshot; the canary deny blocks under `acceptEdits`. Newly discovered and
+  documented: an untrusted workspace ignores project `permissions.allow` entries while still
+  honouring `deny` — trust the workspace once after copy-in. PreCompact flagged as unverified.
+- `.gitattributes` forcing LF on `*.sh` — this repo checks out with CRLF conversion, and a
+  CRLF shebang breaks the hooks on the exact Windows + Git Bash setup they target.
+
+### Changed
+- Milestone 0's harness bullet (`PROJECT_FORGE.md`) now points to `harness/` as the Claude
+  Code copy-in source.
+- Canonical version bumped to **1.11**.
+
 ## 1.10 — 2026-07-02
 
 ### Added

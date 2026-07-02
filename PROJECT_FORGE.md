@@ -4,7 +4,7 @@
 > is and how to operate as your planning partner. Every new chat or session then
 > becomes a structured Forge planning session.
 
-**Forge v1.10**
+**Forge v1.11**
 
 ---
 
@@ -100,7 +100,9 @@ It delivers, in plain steps:
 - **The toolchain proven** — the build/lint/test commands (VERIFICATION.md §3) exist and pass on
   the empty skeleton, so the gate has something real to run.
 - **The Forge harness** — the mid-build quick-check hook, the `/forge-verify` command, and the
-  HANDOFF snapshot hook, in OS-safe form.
+  HANDOFF snapshot hook, in OS-safe form. In Claude Code, copy the reference implementation
+  from the Forge repo's `harness/` folder rather than re-deriving it — copy-in beats
+  re-generation, and the canary proves it loaded (harness-specific; see harness/README.md).
 - **Automation switched on (deterministic only)** — the build/lint/test battery wired to
   run on every push, plus the platform's native dependency scanning enabled. Plain tooling,
   no model in the loop (see Dev-ops automation). Turn on what the platform already gives

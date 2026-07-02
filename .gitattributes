@@ -1,0 +1,3 @@
+# Bash scripts must stay LF — a CRLF shebang breaks Git Bash on Windows,
+# which is exactly the environment the harness hooks target.
+*.sh text eol=lf
