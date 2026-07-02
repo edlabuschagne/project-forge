@@ -5,7 +5,7 @@
 **Prepared for:** Forge v1.7 (model-agnostic AI-assisted software methodology)
 **Purpose:** Holding-pen candidates harvested from Anthropic's published technical work, for LATER triage. Nothing adopted now — collected and assessed only.
 
-## Triage status — 2026-07-02 (Forge v1.10)
+## Triage status — 2026-07-02 (updated for Forge v1.12)
 
 Adopted since this file was prepared (v1.7-era); entries kept below as the research record:
 - **A1/A2 — deterministic guardrail stack** → ADOPTED v1.8 (`FORGE_AUTONOMOUS_MODE.md`
@@ -16,8 +16,10 @@ Adopted since this file was prepared (v1.7-era); entries kept below as the resea
 - **B1 — tamper-resistant JSON acceptance ledger** → ADOPTED v1.10 (`ACCEPTANCE.json`,
   flip-only contract).
 - **B4 — Verifier over-flagging counterweight** → ADOPTED v1.10 (`VERIFICATION.md` §0).
+- **B2 — structured evals for the Verifier** → ADOPTED v1.12 (`evals/verifier/`: fixture +
+  10 graded cases covering both drift directions + the `/forge-eval-verifier` runner).
 
-Still parked: **B2 (Verifier eval set — the named next candidate)**, A3 sandboxing
+Still parked: A3 sandboxing
 (threshold unchanged: unattended runs / untrusted code), A4 managed settings, A5 secret
 hygiene, A6 ranked security findings, B3 modal blind spot, D1–D3 context budget /
 progressive disclosure, E1–E3. F1–F3 stay rejected.

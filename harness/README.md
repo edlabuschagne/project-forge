@@ -28,6 +28,7 @@ anything in this folder.
 | `claude-code/hooks/quick-check.sh` | Mid-build static check — report-only, never blocks | PROJECT_FORGE.md, CLAUDE.md template |
 | `claude-code/hooks/handoff-snapshot.sh` | Writes HANDOFF.snapshot.md (mechanical git state) | PROJECT_FORGE.md, Context & Handoff |
 | `claude-code/settings.json` | Deny baseline + canary target + hook wiring | FORGE_AUTONOMOUS_MODE.md appendix |
+| `claude-code/commands/forge-eval-verifier.md` | Verifier eval runner — grades the Verifier against `evals/verifier/`. **Runs in the Forge repo only; not copied into projects.** | PROJECT_FORGE.md, "Verify the Verifier" |
 
 Line endings: the `.sh` files must stay LF (`.gitattributes` at the repo root enforces
 this) — a CRLF shebang breaks bash on the Windows + Git Bash setup these target.

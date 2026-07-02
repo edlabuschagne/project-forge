@@ -4,7 +4,7 @@
 > is and how to operate as your planning partner. Every new chat or session then
 > becomes a structured Forge planning session.
 
-**Forge v1.11**
+**Forge v1.12**
 
 ---
 
@@ -400,6 +400,13 @@ model does it well (verification is spec pattern-matching, not deep reasoning) �
 *separation* matters more than the horsepower. One exception: a project with UI
 milestones needs a **vision-capable** Verifier for the visual part of the observable-outcome
 check (Check 8).
+
+**Verify the Verifier.** In Autonomous Mode the Verifier is the gate — and nothing else
+checks *it*. The Forge repo ships an eval set (`evals/verifier/`): a fixture project plus
+graded cases — planted defects it must FAIL, and a clean-but-plain diff it must PASS,
+because over-flagging is drift too. Run it when the Verifier's model changes, when
+VERIFICATION.md or the Verifier prompt is edited, or when a verdict smells wrong. Every
+real-world Verifier miss becomes a new case.
 
 ---
 

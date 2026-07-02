@@ -1,0 +1,27 @@
+{
+  "milestones": [
+    {
+      "milestone": 2,
+      "criteria": [
+        {
+          "id": "M2-01",
+          "text": "task done <id> marks the task complete; a subsequent task list shows it as [x]",
+          "passes": false,
+          "evidence": ""
+        },
+        {
+          "id": "M2-02",
+          "text": "task list --status open|done shows only tasks with that status",
+          "passes": false,
+          "evidence": ""
+        },
+        {
+          "id": "M2-03",
+          "text": "task done with a non-existent or non-numeric id prints a friendly error to stderr and exits 1",
+          "passes": false,
+          "evidence": ""
+        }
+      ]
+    }
+  ]
+}

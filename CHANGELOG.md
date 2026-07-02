@@ -4,6 +4,33 @@ All notable changes to the Forge methodology are recorded here. The canonical
 version lives in `PROJECT_FORGE.md` (the `**Forge vX.Y**` line); this file tracks
 its history. Format loosely follows Keep a Changelog; dates are ISO 8601.
 
+## 1.12 — 2026-07-02
+
+### Added
+- **Verifier eval set** (`evals/verifier/` + `/forge-eval-verifier` runner): the drift
+  detector for the gate itself. One shared fixture project (Tasklite, Python stdlib CLI)
+  frozen at the start of its Milestone 2, plus ten graded cases covering both drift
+  directions — planted defects the Verifier must FAIL (criterion unmet, ledger tamper,
+  DO-NOT-BUILD, regression-with-deleted-test, string-built SQL, outcome-contradicts) and
+  clean diffs it must PASS (including an over-flag bait of correct-but-plain code).
+  Coverage: Checks 1–5, 7, 8; Check 6 waits for the growth rule (every real-world Verifier
+  miss becomes a new case). Grading is mechanical — verdict + must-flag match, final report
+  only. (Parked-research item B2 — the last named next-up candidate.)
+- **"Verify the Verifier" paragraph** (`PROJECT_FORGE.md`, Verifier section): triggers
+  (model change, spec/prompt edit, suspicious verdict) and the growth rule, anchored in the
+  methodology body.
+
+### Verified
+- Live two-case smoke on the eval harness (fresh-context sub-agents, real Verifier prompt):
+  case 03 correctly FAILed on Check 1 (non-probative ledger flip), case 10 correctly PASSed
+  with style kept to notes — both drift directions detected. The first case-10 run also
+  caught a genuine authoring bug in the eval itself (battery counts off by one across
+  cases), since fixed — the adversarial evidence-reconciliation working as specified.
+
+### Changed
+- `PARKED_RESEARCH.md` triage: B2 marked ADOPTED v1.12.
+- Canonical version bumped to **1.12**.
+
 ## 1.11 — 2026-07-02
 
 ### Added
