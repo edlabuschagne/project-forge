@@ -5,6 +5,23 @@
 **Prepared for:** Forge v1.7 (model-agnostic AI-assisted software methodology)
 **Purpose:** Holding-pen candidates harvested from Anthropic's published technical work, for LATER triage. Nothing adopted now — collected and assessed only.
 
+## Triage status — 2026-07-02 (Forge v1.10)
+
+Adopted since this file was prepared (v1.7-era); entries kept below as the research record:
+- **A1/A2 — deterministic guardrail stack** → ADOPTED v1.8 (`FORGE_AUTONOMOUS_MODE.md`
+  appendix: deny/ask baseline, PreToolUse hook as optional secondary, startup canary).
+- **C1/C2 — headless mode + dev-ops automation** → ADOPTED v1.9 (`PROJECT_FORGE.md` Dev-ops
+  section + Claude Code/GitHub appendix; GitHub Action studied and parked,
+  agentic-Verifier-in-CI explicitly rejected).
+- **B1 — tamper-resistant JSON acceptance ledger** → ADOPTED v1.10 (`ACCEPTANCE.json`,
+  flip-only contract).
+- **B4 — Verifier over-flagging counterweight** → ADOPTED v1.10 (`VERIFICATION.md` §0).
+
+Still parked: **B2 (Verifier eval set — the named next candidate)**, A3 sandboxing
+(threshold unchanged: unattended runs / untrusted code), A4 managed settings, A5 secret
+hygiene, A6 ranked security findings, B3 modal blind spot, D1–D3 context budget /
+progressive disclosure, E1–E3. F1–F3 stay rejected.
+
 ## TL;DR
 
 - **Forge is strikingly well-aligned with Anthropic's own published guidance** — your two-context split, milestone gating, independent Verifier, and HANDOFF files are nearly one-to-one with Anthropic's "Effective harnesses for long-running agents," "Effective context engineering for AI agents," and the Claude Agent SDK's "gather context → take action → verify → repeat" loop. The biggest wins are *refinements* of things you already have, not new capabilities.

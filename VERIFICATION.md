@@ -19,7 +19,7 @@ The Verifier gets a **fresh context** with only:
   architecture node it links to, assembled deterministically — the Verifier never
   traverses the memory map to pick nodes; it always receives the complete built-state
   picture), the **current milestone's acceptance criteria + DO-NOT-BUILD list**
-  from `MILESTONES.md`, and this file.
+  from `MILESTONES.md`, the `ACCEPTANCE.json` ledger (Tier 2+), and this file.
 - The **actual diff** for the milestone (files changed, tests added) — e.g. `git diff`
   against the milestone's start commit.
 
@@ -29,6 +29,10 @@ spec pattern-matching and regression-hunting, not deep architecture; the *separa
 matters more than the horsepower. **For any milestone with a UI surface the Verifier must
 also be vision-capable** (Check 8 — a capability requirement, not a model name). Adversarial
 stance: **its job is to find the fudge, not to bless the work.**
+Adversarial about the *spec*, though — not inventive: a reviewer prompted to find gaps
+will report some even when the work is sound. Flag only what affects correctness, a
+stated acceptance criterion, or the Check 5 floor; style preferences and hypothetical
+hardening are notes at most — never findings, never grounds to withhold PASS.
 
 Verdict vocabulary — **always with file:line references, never vibes:**
 - **PASS** — every acceptance criterion met, no scope violation, no regression, gates green.
@@ -76,6 +80,11 @@ proof is **not** satisfied — "it should work" is a FAIL. Rules involving data,
 state must be proven **behaviourally** (a test that actually exercises the rule), not by
 existence checks — code being present is not proof it works. The automated battery must have
 **actually run** — "tests pass" with no run output is treated as a FAIL, not a pass.
+**Ledger discipline (Tier 2+):** work from `ACCEPTANCE.json`, not prose claims. Every
+criterion flipped to `passes: true` must be backed by the evidence it cites — verify the
+citation, don't trust the flip; a flip with empty or wrong evidence is a FAIL. Any change
+outside the `passes`/`evidence` fields — criteria removed, reworded, reordered, or added —
+is tampering: **FAIL regardless of code quality.**
 
 ### Check 2 — Architecture conformance
 Does the change follow ARCHITECTURE.md patterns, or did it invent one? Inventing a pattern

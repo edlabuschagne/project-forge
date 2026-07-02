@@ -4,7 +4,7 @@
 > is and how to operate as your planning partner. Every new chat or session then
 > becomes a structured Forge planning session.
 
-**Forge v1.9**
+**Forge v1.10**
 
 ---
 
@@ -127,6 +127,7 @@ Claude classifies every project into a tier (and tells you which, and why — yo
 | **PROJECT_SCOPE.md** | Brief | Full | Detailed + design system |
 | **ARCHITECTURE.md** | — | Standard | Full + API design |
 | **MILESTONES.md** | Simple | With criteria | With criteria + dependencies |
+| **Acceptance ledger** (`ACCEPTANCE.json`) | — | Yes | Yes |
 | **HANDOFF.md** | — | Generated | Generated + decisions log |
 | **VERIFICATION.md** | Optional | Recommended | Yes |
 | **Memory map** (`KNOWLEDGE.md`) | — | Recommended | Yes |
@@ -142,6 +143,7 @@ Claude classifies every project into a tier (and tells you which, and why — yo
 | `PROJECT_SCOPE.md` | What we're building and why — vision, users, problem | `/docs` |
 | `ARCHITECTURE.md` | How the system connects — tech stack, component map | `/docs` |
 | `MILESTONES.md` | Phased build plan + **testable** acceptance criteria | `/docs` |
+| `ACCEPTANCE.json` | Tamper-resistant machine ledger of acceptance criteria — flip-only `passes` contract (Tier 2+) | `/docs` |
 | `HANDOFF.md` | Auto-generated context between sessions (overwritten each session) | Project root |
 | `VERIFICATION.md` | The checklist the Verifier sub-agent runs against | `/docs` |
 | `DECISIONS.md` | Auto-appended log of technical choices (Tier 3) | `/docs` |
@@ -174,6 +176,9 @@ explicit user approval.
 ## Rules — MUST follow at all times
 - Read MILESTONES.md before starting any work
 - Build ONLY the current milestone — do not work ahead
+- Acceptance criteria live in docs/ACCEPTANCE.json. You may change ONLY the "passes" and
+  "evidence" fields. Never remove, reword, reorder, or add criteria — if one looks wrong,
+  STOP and raise it (Tier 2+; see the ACCEPTANCE.json template)
 - Do not change the tech stack without explicit approval
 - Commit to git after each meaningful feature, with clear messages
 - Do not delete or overwrite existing working features
@@ -310,6 +315,42 @@ see FORGE_AUTONOMOUS_MODE.md §2a]
 **Dependencies:** [Tier 3 only]
 ```
 
+### ACCEPTANCE.json — the tamper-resistant acceptance ledger (Tier 2+)
+
+Acceptance criteria live twice: in MILESTONES.md as the human-readable plan, and mirrored
+into `docs/ACCEPTANCE.json` as the machine ledger the gate actually tracks. JSON is
+deliberate — a model is far less likely to casually rewrite a JSON record than to soften
+a Markdown sentence, so the ledger is the copy that resists "looks done but isn't."
+Generated in planning alongside MILESTONES.md, every entry starting `"passes": false`.
+
+```json
+{
+  "milestones": [
+    {
+      "milestone": 1,
+      "criteria": [
+        {
+          "id": "M1-01",
+          "text": "User submits the form and sees a confirmation banner",
+          "passes": false,
+          "evidence": ""
+        }
+      ]
+    }
+  ]
+}
+```
+
+**The flip-only contract (goes in CLAUDE.md; the Verifier enforces it at the gate):**
+- The executor may change **only** the `passes` and `evidence` fields. Flipping `passes`
+  to `true` requires filling `evidence` (a test name or `file:line`) in the same edit.
+- It is unacceptable to remove, reword, or reorder criteria, or to add criteria mid-build —
+  that path leads to missing or buggy functionality. Criteria change only in planning,
+  with the human. If a criterion looks wrong, raise it; never edit it.
+- The Verifier (VERIFICATION.md Check 1) works from the ledger: every flipped `passes`
+  must be backed by the evidence it cites, and any edit outside the two writable fields
+  is tampering → FAIL regardless of code quality.
+
 ### VERIFICATION.md
 ```markdown
 # Verification Checklist — [Project Name]
@@ -347,7 +388,12 @@ Forge's original docs were all *planning and memory* — there was no **gate** b
 the work **without having written it.**
 
 What makes it work is what it *doesn't* know — it gets a fresh context, a narrow job,
-and an adversarial stance, running `VERIFICATION.md` against the diff. A lighter, cheaper
+and an adversarial stance, running `VERIFICATION.md` against the diff.
+Adversarial cuts both ways: a reviewer told to find gaps will report some even when the
+work is sound, so the Verifier flags only what affects correctness, a stated acceptance
+criterion, or the never-shortcut floor — everything else is at most a note, never grounds
+to withhold PASS. Otherwise the gate itself becomes the over-engineering engine the
+leanness rule exists to stop. A lighter, cheaper
 model does it well (verification is spec pattern-matching, not deep reasoning) — the
 *separation* matters more than the horsepower. One exception: a project with UI
 milestones needs a **vision-capable** Verifier for the visual part of the observable-outcome

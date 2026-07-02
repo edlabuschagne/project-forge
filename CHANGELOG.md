@@ -4,6 +4,24 @@ All notable changes to the Forge methodology are recorded here. The canonical
 version lives in `PROJECT_FORGE.md` (the `**Forge vX.Y**` line); this file tracks
 its history. Format loosely follows Keep a Changelog; dates are ISO 8601.
 
+## 1.10 — 2026-07-02
+
+### Added
+- **Tamper-resistant acceptance ledger** (`ACCEPTANCE.json`, Tier 2+): acceptance criteria
+  mirrored into a JSON ledger with a flip-only contract — the executor may change only
+  `passes`/`evidence`; Verifier Check 1 verifies every flip against its cited evidence and
+  treats any other edit as tampering (FAIL). Added to the Documents and Tiers tables, the
+  CLAUDE.md template rules, and the Verifier input set. (Parked-research item B1.)
+
+### Changed
+- **Verifier over-flagging counterweight** (`VERIFICATION.md` §0; `PROJECT_FORGE.md`
+  Verifier section): the adversarial stance now carries an explicit bound — flag only what
+  affects correctness, a stated criterion, or the Check 5 floor; everything else is a note,
+  never grounds to withhold PASS. (Item B4.)
+- `PARKED_RESEARCH.md` gains a triage-status block: A1/A2 adopted in v1.8, C1/C2 in v1.9,
+  B1/B4 in v1.10; B2 (Verifier eval set) named the next candidate.
+- Canonical version bumped to **1.10**.
+
 ## 1.9 — 2026-06-24
 
 ### Added
