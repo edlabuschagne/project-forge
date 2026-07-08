@@ -4,7 +4,7 @@
 > is and how to operate as your planning partner. Every new chat or session then
 > becomes a structured Forge planning session.
 
-**Forge v1.12**
+**Forge v1.13**
 
 ---
 
@@ -373,7 +373,9 @@ actually changed.
    a CLI, the generated artifact for a batch job — and confirm it shows what the criterion
    says should be there, not an error, empty state, broken layout, or placeholder. A
    criterion whose captured outcome contradicts it is a FAIL, not a note. (UI surfaces
-   require a vision-capable Verifier.)
+   require a vision-capable Verifier.) For a deployed project, at least one capture is a
+   real browser load of the deployed URL with a JS-error listener — status codes alone
+   are not an outcome.
 
 Output: PASS / PASS-WITH-NOTES / FAIL — with line references. No vibes.
 ```
@@ -503,6 +505,11 @@ model-agnostic — name a specific host in your project docs, never in the metho
   and review on the deployed result, not localhost — it surfaces config, secret, and
   environment problems while they're cheap, and it lets you review from anywhere. (Autonomous
   Mode leans on this for batch review, but it's a base habit, not an autonomous-only one.)
+- **Verify the deployed artefact, never its local twin.** The deployed build is
+  produced by the host's infrastructure with its own configuration scope — build-time
+  and runtime settings are separate surfaces that fail independently, so a passing
+  local build proves nothing about what the host built. A gate on a deployed project
+  includes a real browser load of the live URL (VERIFICATION.md Check 8).
 - **Claude recommends the host, you own the spend.** Claude proposes a hosting option that fits
   the project with a plain-language *why* and guides the setup step by step — but *you* perform
   anything billable or irreversible (creating accounts, provisioning paid resources, pointing a

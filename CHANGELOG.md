@@ -4,6 +4,26 @@ All notable changes to the Forge methodology are recorded here. The canonical
 version lives in `PROJECT_FORGE.md` (the `**Forge vX.Y**` line); this file tracks
 its history. Format loosely follows Keep a Changelog; dates are ISO 8601.
 
+## 1.13 — 2026-07-08
+
+### Added
+- **Production-surface verification** (`VERIFICATION.md` Check 8 + §3; `PROJECT_FORGE.md`
+  Shipping + embedded template): for any project with a deployed URL, the gate requires
+  at least one real browser load of the deployed URL with a JS-error listener, origin
+  asserted in the capture. Born from a real miss (growth rule): a production SPA served
+  a blank page through three gates while curl-based "production verified" checks stayed
+  green. The provenance clause also closes the fabricated-evidence class caught at the
+  same build's M0 (a "deployed" screenshot byte-identical to the localhost capture).
+- **Verifier citation self-check** (`harness/.../forge-verify.md` Step 4 prompt): the
+  Verifier re-checks its file:line references before reporting — earlier real-world
+  gates produced correct verdicts with sloppy citations. Prompt edit = eval trigger;
+  eval re-run on the current Verifier model required.
+
+### Changed
+- `evals/verifier/README.md` coverage note: deployed-surface case deferred to a
+  deploy-capable fixture via the growth rule, same path as Check 6.
+- Canonical version bumped to **1.13**.
+
 ## 1.12 — 2026-07-02
 
 ### Added

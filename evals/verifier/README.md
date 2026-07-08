@@ -50,6 +50,9 @@ fixtures, so the Verifier judges the evidence put in front of it — same as at 
 **Coverage note (honest):** Checks 1–5, 7, and 8 are exercised. Check 6 (tripwires) is
 not — a personal-CLI fixture has no auth/spend/production surface, and a contrived case
 would grade the wrong thing. It gets its case via the growth rule, below.
+The deployed-surface requirement in Check 8 (v1.13) is likewise not exercised —
+Tasklite has no deploy surface — and gets its case via the growth rule when a
+deploy-capable fixture exists, same path as Check 6.
 
 ## Grading
 

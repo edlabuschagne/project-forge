@@ -149,6 +149,15 @@ open the outcome captured for its state (§3), in whatever form fits the platfor
   criterion specifies.
 - **A batch job / generated file** → the produced artifact. Confirm its contents are what the
   criterion describes.
+
+**Deployed surface (any project with a deployed URL):** at least one captured outcome
+must be a real browser load of the **deployed** URL — never localhost — with a
+JavaScript error listener attached, confirming the page renders its intended content
+with zero page errors. A status-code check is not an outcome: a blank page and a
+healthy 200 are indistinguishable to curl. And production evidence must be provably
+production — the capture asserts the origin it actually loaded, so a local capture can
+never stand in for a deployed one.
+
 **A criterion whose captured outcome contradicts it is a FAIL, not a note** — code "passing"
 while the result is wrong is the "looks done but isn't" defect that hides longest in an
 unattended run.
@@ -193,7 +202,10 @@ No prose blessing without line references. **If you cannot cite it, it did not p
   state to `verification-shots/M[X]/<criterion>.<ext>` — a screenshot (`.png`) for a UI,
   captured stdout + exit code (`.txt`) for a CLI, the generated artifact for a batch job.
   Deterministic capture only — no agent driving the run, so the model spends tokens on
-  *looking* (Check 8), never on plumbing.
+  *looking* (Check 8), never on plumbing. For a project with a deployed URL, the capture
+  set includes at least one real browser page-load of the deployed URL with a JS-error
+  listener, its origin asserted in the capture itself; local-only projects (per Shipping,
+  Tier 1) skip this.
 - **Security checks:** never "verified" via a privileged/admin path that bypasses the
   access-control layer — that bypasses the very thing you're testing. Prove behaviourally,
   the way a real unprivileged user would hit it.

@@ -16,6 +16,8 @@ Capture real output. If a command is missing from §3, STOP and report — do no
 Confirm the e2e run captured the observable outcome for each acceptance criterion to
 verification-shots/M[X]/ — a screenshot for UI, stdout + exit code for a CLI, the
 artifact for a batch job. Deterministic capture only; do not drive the app by hand.
+Where docs/VERIFICATION.md §3 requires it (any project with a deployed URL), the
+captures include the real browser load of the deployed URL, origin asserted.
 
 ## Step 3 — Assemble the Verifier's input (nothing more, nothing less)
 Collect exactly:
@@ -40,7 +42,9 @@ captured screenshots). Its prompt, verbatim:
 > never grounds to withhold PASS. Run the eight checks in VERIFICATION.md IN ORDER
 > against the inputs provided. Output the Gate Report in the exact format of
 > VERIFICATION.md §2. Verdict vocabulary: PASS / PASS-WITH-NOTES / FAIL, always with
-> file:line references. If you cannot cite it, it did not pass.
+> file:line references. Before writing the report, re-check every file:line citation
+> against the actual diff — a wrong reference invalidates the finding. If you cannot
+> cite it, it did not pass.
 
 ## Step 5 — Report and STOP
 - Present the Verifier's Gate Report verbatim. Do not soften it.
