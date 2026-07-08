@@ -78,4 +78,4 @@ into projects.
 
 | Date | Verifier model | Score | Notes |
 |---|---|---|---|
-| _(none yet — record full 10-case runs here)_ | | | |
+| 2026-07-03 | claude-opus-4-8 (1M) | 9/10 | No dangerous drift: all 6 FAIL cases caught on correct checks; case 10 (over-flag bait) clean, no findings. Soft: case 01 returned PASS-WITH-NOTES vs PASS on a pedantic argparse exit-code note (no criterion exercises it). |
