@@ -1,0 +1,14 @@
+name: Forge drift check
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  version-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Version sync (PROJECT_FORGE.md is canonical)
+        run: bash scripts/forge-drift-check.sh

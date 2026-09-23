@@ -27,8 +27,12 @@ If the three ever disagree, `PROJECT_FORGE.md` is the anchor and wins.
 
 The canonical methodology version lives in **`PROJECT_FORGE.md`** (the `**Forge vX.Y**` line
 near the top). `CHANGELOG.md` records the history of changes. The methodology is currently at
-**v1.13**. When citing or bumping the version, treat `PROJECT_FORGE.md` as the single source of
+**v1.14**. When citing or bumping the version, treat `PROJECT_FORGE.md` as the single source of
 truth; update `CHANGELOG.md` in the same change.
+
+Run `scripts/forge-drift-check.sh` after any bump — it checks that those locations agree,
+and CI runs it on every push and pull request. That script is Forge-repo tooling; it is not
+part of the harness and is never copied into a project.
 
 ## Standing working rule — permanent, every session
 

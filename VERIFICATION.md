@@ -187,6 +187,9 @@ Verdict: PASS | PASS-WITH-NOTES | FAIL
 ### Bottom line: <what passes, what fails, what the human must look at>
 ```
 
+Before writing the report, re-check every `file:line` citation against the actual diff
+— a wrong reference invalidates the finding.
+
 No prose blessing without line references. **If you cannot cite it, it did not pass.**
 
 ---

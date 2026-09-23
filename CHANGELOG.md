@@ -4,6 +4,28 @@ All notable changes to the Forge methodology are recorded here. The canonical
 version lives in `PROJECT_FORGE.md` (the `**Forge vX.Y**` line); this file tracks
 its history. Format loosely follows Keep a Changelog; dates are ISO 8601.
 
+## 1.14 — 2026-09-23
+
+### Added
+- **Version-sync drift check** (`scripts/forge-drift-check.sh` + `.github/workflows/forge-drift-check.yml`):
+  reads the canonical version from `PROJECT_FORGE.md` and fails if `CLAUDE.md` or the top
+  `CHANGELOG.md` entry disagrees. The locations are an explicit list, so the v1.13 provenance
+  marker in `evals/verifier/README.md` is never synced. Forge-repo tooling only — not part of
+  the harness, never copied into a project. The repo's first CI.
+- `PARKED_RESEARCH.md` **E4** — spec↔harness coupling check, parked with an explicit adopt
+  threshold: a real gate found running on a harness that disagrees with the spec.
+
+### Changed
+- **Citation self-check backfilled into `VERIFICATION.md` §2** — previously harness-only (the
+  `/forge-verify` Step 4 prompt). This changes a Verifier input; the Verifier eval was **not**
+  re-run, because the added text restates an instruction already in the Step 4 prompt.
+- Canonical version bumped to **1.14**.
+
+### Fixed
+- **`harness/.../forge-verify.md` Step 5** — the Autonomous Mode branch now points to
+  `FORGE_AUTONOMOUS_MODE.md` §2 instead of a partial restatement that omitted PASS-WITH-NOTES
+  and the severity-high → FAIL escalation.
+
 ## 1.13 — 2026-07-08
 
 ### Added

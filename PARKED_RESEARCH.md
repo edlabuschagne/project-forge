@@ -5,7 +5,7 @@
 **Prepared for:** Forge v1.7 (model-agnostic AI-assisted software methodology)
 **Purpose:** Holding-pen candidates harvested from Anthropic's published technical work, for LATER triage. Nothing adopted now — collected and assessed only.
 
-## Triage status — 2026-07-02 (updated for Forge v1.12)
+## Triage status — 2026-09-23 (updated for Forge v1.14)
 
 Adopted since this file was prepared (v1.7-era); entries kept below as the research record:
 - **A1/A2 — deterministic guardrail stack** → ADOPTED v1.8 (`FORGE_AUTONOMOUS_MODE.md`
@@ -22,7 +22,7 @@ Adopted since this file was prepared (v1.7-era); entries kept below as the resea
 Still parked: A3 sandboxing
 (threshold unchanged: unattended runs / untrusted code), A4 managed settings, A5 secret
 hygiene, A6 ranked security findings, B3 modal blind spot, D1–D3 context budget /
-progressive disclosure, E1–E3. F1–F3 stay rejected.
+progressive disclosure, E1–E4. F1–F3 stay rejected.
 
 ## TL;DR
 
@@ -97,6 +97,8 @@ Forge's Autonomous Mode names "hard tripwires that STOP on irreversible operatio
 **E2. Initializer-agent vs. coding-agent split for Milestone 0 (IMPROVE).** Anthropic uses a *different prompt for the very first context window* — an initializer agent that writes the `init.sh`, the progress log, the feature list, and the first git commit, so every later session starts by reading state and running a basic smoke test. Forge's Milestone 0 is conceptually this; the parkable refinement is the explicit "get your bearings" startup ritual (pwd → read progress/handoff → read acceptance ledger → run smoke test → only then pick the next item) baked into the coding-agent prompt. Source: anthropic.com/engineering/effective-harnesses-for-long-running-agents.
 
 **E3. Extended thinking / plan mode at gate boundaries (IMPROVE).** Forge plans in Claude.ai chat, but the Claude Code side could use **plan mode** (read-only; proposes a plan and waits — a built-in stop-and-wait gate) and **extended-thinking keywords** ("think"/"think hard"/"ultrathink") at planning moments. Anthropic's research found extended thinking improves instruction-following and is best used during the plan phase and "stuck-in-a-loop" moments. This reinforces Forge's planning/execution split *within* the harness without breaking it. Caveat: thinking keywords work in Claude Code, not the API/app, which sits fine with model-agnosticism only if treated as a Claude-specific optimization, not a dependency. Source: anthropic.com/engineering/claude-think-tool; Claude Code plan-mode docs.
+
+**E4. Spec↔harness change coupling as a CI check (IMPROVE; parked 2026-09-23, Forge v1.14).** The shipped gate command (`harness/claude-code/commands/forge-verify.md`) operationalises `VERIFICATION.md`, and the harness `settings.json` operationalises the `FORGE_AUTONOMOUS_MODE.md` appendix — so a spec edit that never reaches the harness leaves projects running a gate that quietly disagrees with the methodology. The parkable mechanism is a CI tripwire: fail a push or PR whose changed files touch `VERIFICATION.md` without `forge-verify.md` (or `FORGE_AUTONOMOUS_MODE.md` without `settings.json`), with a `[harness-unaffected]` commit-message escape for spec edits that genuinely need no harness change. **Not adopted in v1.14, deliberately:** the suspicion that prompted it came from a stale planning-side snapshot of this repo — the Claude.ai Project’s copy of the harness predated v1.13 — not from drift in the repo itself; v1.13 shipped the spec and harness changes in the same commit. A tripwire with no demonstrated trigger is speculative generality, which the leanness floor rejects. **Threshold to adopt:** a real gate is ever found running on a harness that disagrees with the spec — drift originating in *this* repo, not in a downstream copy. At that point the coupling rule is evidence-backed and becomes a second check in `scripts/forge-drift-check.sh`, the same growth rule the Verifier eval set uses.
 
 ### F. Things to park with prejudice (honest pushback)
 

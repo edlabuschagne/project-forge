@@ -50,5 +50,6 @@ captured screenshots). Its prompt, verbatim:
 - Present the Verifier's Gate Report verbatim. Do not soften it.
 - Append the milestone's debt-ledger entries (Check 7) to HANDOFF.md; refresh HANDOFF.md.
 - Classic Forge: STOP and wait for human review regardless of verdict.
-- Autonomous Mode: branch per FORGE_AUTONOMOUS_MODE.md §2 (PASS on an auto-verifiable
-  milestone → proceed; needs-human-check or FAIL → STOP).
+- Autonomous Mode: branch exactly per the verdict rules in FORGE_AUTONOMOUS_MODE.md §2
+  (including PASS-WITH-NOTES and severity-high escalation). Do not act on a paraphrase;
+  read the rules there.
